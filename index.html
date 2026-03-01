@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UK Life Admin Hours Wasted</title>
+<title>UK Life Admin Hours</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,96 +28,49 @@
     line-height: 1.3;
   }
 
+  /* ── Clock outer wrapper ── */
+  .clock-outer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ── Top row: cards + commas ── */
   .clock {
     display: flex;
     align-items: center;
     gap: 4px;
   }
 
-  .card {
-    width: 44px;
-    height: 60px;
-    position: relative;
-    perspective: 300px;
-  }
-
-  .face {
-    width: 100%;
-    height: 100%;
-    border-radius: 5px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-  }
-
-  .face::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background: rgba(0,0,0,0.5);
-    z-index: 5;
-  }
-
-  .half {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 50%;
-    overflow: hidden;
+  /* ── Label row: sits directly beneath the card row ── */
+  .labels {
     display: flex;
-    justify-content: center;
+    align-items: flex-start;
+    gap: 4px;
   }
 
-  .half.top { top: 0; align-items: flex-end; background: #1c1c1c; }
-  .half.bot { bottom: 0; align-items: flex-start; background: #111; }
-
-  .half span {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 2.8rem;
-    color: #fff;
-    line-height: 1;
-    transform: translateY(50%);
-    display: block;
-    user-select: none;
-  }
-
-  .half.bot span { transform: translateY(-50%); }
-
-  .flap {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 50%;
-    transform-origin: bottom center;
-    overflow: hidden;
-    border-radius: 5px 5px 0 0;
-    z-index: 10;
-    pointer-events: none;
-    background: #1c1c1c;
+  /* Each label group spans exactly the same width as its digit group above */
+  .label-group {
     display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
   }
 
-  .flap span {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 2.8rem;
-    color: #fff;
-    line-height: 1;
-    transform: translateY(50%);
-    display: block;
-    user-select: none;
+  .label-group span {
+    font-size: 0.6rem;
+    font-weight: 400;
+    color: #999;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    white-space: nowrap;
   }
 
-  .flap.go {
-    animation: flipDown 0.32s cubic-bezier(0.4,0,0.2,1) forwards;
-  }
-
-  @keyframes flipDown {
-    0%   { transform: rotateX(0deg); }
-    100% { transform: rotateX(-90deg); }
+  /* Spacer to align under commas */
+  .label-spacer {
+    /* matches .comma width: 1px margin each side + roughly the character width */
+    width: 18px;
+    flex-shrink: 0;
   }
 
   .comma {
@@ -128,32 +81,161 @@
     padding-top: 14px;
     line-height: 1;
   }
+
+  /* ── Card shell ── */
+  .card {
+    width: 44px;
+    height: 60px;
+    position: relative;
+    perspective: 400px;
+  }
+
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .face::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0;
+    width: 100%; height: 1px;
+    background: rgba(0,0,0,0.55);
+    z-index: 5;
+  }
+
+  .half {
+    position: absolute;
+    left: 0;
+    width: 100%; height: 50%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+  }
+  .half.top { top: 0;    align-items: flex-end;  background: #1c1c1c; }
+  .half.bot { bottom: 0; align-items: flex-start; background: #111;   }
+
+  .half span {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.8rem;
+    color: #fff;
+    line-height: 1;
+    display: block;
+    user-select: none;
+    transform: translateY(50%);
+  }
+  .half.bot span { transform: translateY(-50%); }
+
+  .flap {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 50%;
+    transform-origin: bottom center;
+    overflow: hidden;
+    border-radius: 5px 5px 0 0;
+    background: #1c1c1c;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 10;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .flap span {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.8rem;
+    color: #fff;
+    line-height: 1;
+    display: block;
+    user-select: none;
+    transform: translateY(50%);
+  }
+
+  .flap.go {
+    visibility: visible;
+    animation: flipDown 0.38s cubic-bezier(0.55, 0, 0.45, 1) forwards;
+  }
+
+  @keyframes flipDown {
+    0%   { transform: rotateX(0deg);   }
+    100% { transform: rotateX(-90deg); }
+  }
+
+  /* ── Citation ── */
+  .citation {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 0; width: 100%;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #555;
+    padding: 0 1rem;
+    line-height: 1.6;
+  }
+  .citation a { color: #555; text-decoration: underline; }
+  .citation a:hover { color: #111; }
 </style>
 </head>
 <body>
 
 <h1 id="title"></h1>
-<div class="clock" id="clock"></div>
+
+<div class="clock-outer">
+  <div class="clock" id="clock"></div>
+  <div class="labels" id="labels"></div>
+</div>
+
+<p id="nudge" style="font-size:0.7rem;color:#999;letter-spacing:0.1em;text-transform:uppercase;transition:opacity 0.5s;">
+  ▶ Click anywhere to enable sound
+</p>
+
+<p class="citation">
+  These hours are calculated from the paper
+  <a href="https://researchrepository.ucd.ie/server/api/core/bitstreams/d56f7eeb-b102-46da-b060-0c969420d514/content" target="_blank">
+    <em>Everyday Administrative Burdens and Inequality</em> by Lucie Martin, Liam Delaney and Orla Doyle
+  </a>
+</p>
 
 <script>
   const HOURS_PER_YEAR = 15_000_000_000;
-  const TOTAL_DIGITS   = 11; // up to 99,999,999,999
+  const TOTAL_DIGITS   = 11;
+  const INTERVAL_MS    = 5_000;   // 5 seconds
+  const CASCADE_MS     = 80;
+
+  // Groups: 2 digits, 3 digits, 3 digits, 3 digits
+  // 11 digits total = 00,000,000,000
+  // Positions:       [0-1] [2-4] [5-7] [8-10]
+  // Labels:          "tens of billions" | "billions" | "millions" | "thousands" ... 
+  // Simpler: label each GROUP by its leading denomination
+  const GROUPS = [
+    { count: 2, label: 'billions' },
+    { count: 3, label: 'millions' },
+    { count: 3, label: 'thousands' },
+    { count: 3, label: 'units' },
+  ];
 
   function getHoursWasted() {
-    const now      = new Date();
+    const now       = new Date();
     const yearStart = new Date(now.getFullYear(), 0, 1);
     const yearEnd   = new Date(now.getFullYear() + 1, 0, 1);
-    const rate      = HOURS_PER_YEAR / ((yearEnd - yearStart) / 1000); // hrs/sec
+    const rate      = HOURS_PER_YEAR / ((yearEnd - yearStart) / 1000);
     return Math.floor((now - yearStart) / 1000 * rate);
   }
 
-  // Build DOM: groups 2-3-3-3
-  const clockEl = document.getElementById('clock');
-  const cards   = [];
-  const curVals = Array(TOTAL_DIGITS).fill(null);
+  // ── Build DOM ──────────────────────────────────────────────────────────
+  const clockEl  = document.getElementById('clock');
+  const labelsEl = document.getElementById('labels');
+  const cards    = [];
+  const curVals  = Array(TOTAL_DIGITS).fill(null);
 
-  [2, 3, 3, 3].forEach((count, gi, arr) => {
-    for (let d = 0; d < count; d++) {
+  GROUPS.forEach((group, gi) => {
+    // -- Card group --
+    for (let d = 0; d < group.count; d++) {
       const idx  = cards.length;
       const card = document.createElement('div');
       card.className = 'card';
@@ -162,96 +244,139 @@
           <div class="half top"><span class="tv">0</span></div>
           <div class="half bot"><span class="bv">0</span></div>
         </div>
-        <div class="flap" id="flap${idx}"><span id="fs${idx}">0</span></div>`;
+        <div class="flap" id="flap${idx}"><span>0</span></div>`;
       clockEl.appendChild(card);
       cards.push(card);
     }
-    if (gi < arr.length - 1) {
+
+    // -- Label beneath this group --
+    const labelGroup = document.createElement('div');
+    labelGroup.className = 'label-group';
+    // Width = count * card width + (count-1) * gap
+    labelGroup.style.width = (group.count * 44 + (group.count - 1) * 4) + 'px';
+    const lspan = document.createElement('span');
+    lspan.textContent = group.label;
+    labelGroup.appendChild(lspan);
+    labelsEl.appendChild(labelGroup);
+
+    // -- Comma separator (not after last group) --
+    if (gi < GROUPS.length - 1) {
       const sep = document.createElement('div');
       sep.className = 'comma';
       sep.textContent = ',';
       clockEl.appendChild(sep);
+
+      // Matching spacer in label row
+      const spacer = document.createElement('div');
+      spacer.className = 'label-spacer';
+      labelsEl.appendChild(spacer);
     }
   });
 
-  // Audio
+  // ── Audio ──────────────────────────────────────────────────────────────
   let actx = null;
-  const startAudio = () => { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); };
-  document.addEventListener('click',      startAudio, { once: true });
-  document.addEventListener('touchstart', startAudio, { once: true });
 
-  function playFlip() {
-    if (!actx) return;
-    const t = actx.currentTime;
-    // Click noise
-    const n  = actx.sampleRate * 0.06;
+  function ensureAudio() {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+  }
+
+  const nudge = document.getElementById('nudge');
+  function unlockAudio() {
+    ensureAudio();
+    if (nudge) nudge.style.opacity = '0';
+  }
+  document.addEventListener('click',      unlockAudio);
+  document.addEventListener('touchstart', unlockAudio);
+
+  function playFlipSound(whenSec) {
+    if (!actx || actx.state === 'suspended') return;
+    const t = whenSec;
+
+    const n  = Math.floor(actx.sampleRate * 0.06);
     const b  = actx.createBuffer(1, n, actx.sampleRate);
     const bd = b.getChannelData(0);
     for (let i = 0; i < n; i++) bd[i] = (Math.random()*2-1) * Math.exp(-i/(n*0.1));
-    const s = actx.createBufferSource(); s.buffer = b;
-    const f = actx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1800; f.Q.value=1;
-    const g = actx.createGain(); g.gain.setValueAtTime(0.3,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.06);
-    s.connect(f); f.connect(g); g.connect(actx.destination); s.start(t);
-    // Thud
-    const n2  = actx.sampleRate * 0.04;
-    const b2  = actx.createBuffer(1, n2, actx.sampleRate);
-    const b2d = b2.getChannelData(0);
+    const src = actx.createBufferSource(); src.buffer = b;
+    const flt = actx.createBiquadFilter(); flt.type = 'bandpass'; flt.frequency.value = 1800; flt.Q.value = 1;
+    const gn  = actx.createGain();
+    gn.gain.setValueAtTime(0.28, t);
+    gn.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+    src.connect(flt); flt.connect(gn); gn.connect(actx.destination);
+    src.start(t);
+
+    const n2   = Math.floor(actx.sampleRate * 0.04);
+    const b2   = actx.createBuffer(1, n2, actx.sampleRate);
+    const b2d  = b2.getChannelData(0);
     for (let i = 0; i < n2; i++) b2d[i] = (Math.random()*2-1) * Math.exp(-i/(n2*0.3));
-    const s2 = actx.createBufferSource(); s2.buffer = b2;
-    const f2 = actx.createBiquadFilter(); f2.type='lowpass'; f2.frequency.value=200;
-    const g2 = actx.createGain(); g2.gain.setValueAtTime(0.4,t+0.01); g2.gain.exponentialRampToValueAtTime(0.001,t+0.05);
-    s2.connect(f2); f2.connect(g2); g2.connect(actx.destination); s2.start(t+0.01);
+    const src2 = actx.createBufferSource(); src2.buffer = b2;
+    const flt2 = actx.createBiquadFilter(); flt2.type = 'lowpass'; flt2.frequency.value = 200;
+    const gn2  = actx.createGain();
+    gn2.gain.setValueAtTime(0.4,  t + 0.01);
+    gn2.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    src2.connect(flt2); flt2.connect(gn2); gn2.connect(actx.destination);
+    src2.start(t + 0.01);
   }
 
-  function flipCard(idx, ch) {
-    const card = cards[idx];
-    const tv   = card.querySelector('.tv');
-    const bv   = card.querySelector('.bv');
-    const flap = document.getElementById('flap' + idx);
-    const fs   = document.getElementById('fs'   + idx);
+  // ── Flip a single card ─────────────────────────────────────────────────
+  function flipCard(idx, oldChar, newChar, startDelayMs) {
+    const card     = cards[idx];
+    const tv       = card.querySelector('.tv');
+    const bv       = card.querySelector('.bv');
+    const flap     = document.getElementById('flap' + idx);
+    const flapSpan = flap.querySelector('span');
 
-    fs.textContent = tv.textContent;
-    tv.textContent = ch;
-    bv.textContent = ch;
+    setTimeout(() => {
+      flapSpan.textContent = oldChar;
+      tv.textContent       = oldChar;
+      bv.textContent       = newChar;
 
-    // Clone flap to force animation restart cleanly
-    const newFlap = flap.cloneNode(true);
-    newFlap.id = 'flap' + idx;
-    flap.parentNode.replaceChild(newFlap, flap);
-    void newFlap.offsetWidth;
-    newFlap.classList.add('go');
-    newFlap.addEventListener('animationend', () => newFlap.classList.remove('go'), { once: true });
+      flap.classList.remove('go');
+      void flap.offsetWidth;
+      flap.classList.add('go');
+
+      ensureAudio();
+      if (actx) playFlipSound(actx.currentTime);
+
+      flap.addEventListener('animationend', () => {
+        tv.textContent = newChar;
+        flap.classList.remove('go');
+      }, { once: true });
+
+    }, startDelayMs);
   }
 
-  function setCard(idx, ch, animate) {
-    if (curVals[idx] === ch) return false;
-    curVals[idx] = ch;
-    const card = cards[idx];
-    if (!animate) {
-      card.querySelector('.tv').textContent = ch;
-      card.querySelector('.bv').textContent = ch;
-      document.getElementById('fs' + idx).textContent = ch;
-    } else {
-      flipCard(idx, ch);
-    }
-    return true;
-  }
-
+  // ── Render ─────────────────────────────────────────────────────────────
   function render(animate) {
     const h   = getHoursWasted();
     const str = h.toString().padStart(TOTAL_DIGITS, '0');
-    let played = false;
+
+    if (!animate) {
+      for (let i = 0; i < TOTAL_DIGITS; i++) {
+        curVals[i] = str[i];
+        cards[i].querySelector('.tv').textContent = str[i];
+        cards[i].querySelector('.bv').textContent = str[i];
+        document.querySelector(`#flap${i} span`).textContent = str[i];
+      }
+      return;
+    }
+
+    let order = 0;
     for (let i = 0; i < TOTAL_DIGITS; i++) {
-      const changed = setCard(i, str[i], animate);
-      if (changed && animate && !played) { playFlip(); played = true; }
+      if (str[i] !== curVals[i]) {
+        const old = curVals[i];
+        curVals[i] = str[i];
+        flipCard(i, old, str[i], order * CASCADE_MS);
+        order++;
+      }
     }
   }
 
   document.getElementById('title').textContent =
-    `Hours wasted on life admin in the UK since ${new Date().getFullYear()}`;
+    `Hours spent by the UK public on life admin since ${new Date().getFullYear()}`;
 
   render(false);
-  setInterval(() => render(true), 30000);
+  setInterval(() => render(true), INTERVAL_MS);
 </script>
 </body>
 </html>
