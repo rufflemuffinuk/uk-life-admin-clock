@@ -8,49 +8,64 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /*
+   * Single source of truth: --s (card width).
+   * Everything else derives from it so the whole clock scales uniformly.
+   * clamp(20px, 7vw, 44px) means:
+   *   - at 320px viewport → ~22px cards  (11 cards fit easily)
+   *   - at 628px viewport → 44px cards   (full size, never bigger)
+   */
+  :root {
+    --s:        clamp(20px, 7vw, 44px);
+    --h:        calc(var(--s) * 1.36);
+    --f:        calc(var(--s) * 1.27);
+    --gap:      calc(var(--s) * 0.09);
+    --comma-f:  calc(var(--s) * 0.9);
+    --comma-pt: calc(var(--s) * 0.32);
+    --radius:   calc(var(--s) * 0.11);
+  }
+
   body {
     background: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2rem;
+    gap: clamp(0.8rem, 2.5vw, 2rem);
     min-height: 100vh;
+    padding: 1.5rem 2vw 4rem;
     font-family: Arial, Helvetica, sans-serif;
   }
 
   h1 {
-    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    font-size: clamp(0.8rem, 2.6vw, 1.6rem);
     font-weight: 900;
     color: #111;
     text-align: center;
     letter-spacing: -0.01em;
-    line-height: 1.3;
+    line-height: 1.4;
+    max-width: 92vw;
   }
 
-  /* ── Clock outer wrapper ── */
   .clock-outer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: calc(var(--s) * 0.14);
   }
 
-  /* ── Top row: cards + commas ── */
   .clock {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--gap);
   }
 
-  /* ── Label row: sits directly beneath the card row ── */
   .labels {
     display: flex;
     align-items: flex-start;
-    gap: 4px;
+    gap: var(--gap);
   }
 
-  /* Each label group spans exactly the same width as its digit group above */
   .label-group {
     display: flex;
     flex-direction: column;
@@ -58,7 +73,7 @@
   }
 
   .label-group span {
-    font-size: 0.6rem;
+    font-size: clamp(0.4rem, 1vw, 0.6rem);
     font-weight: 400;
     color: #999;
     letter-spacing: 0.08em;
@@ -66,34 +81,32 @@
     white-space: nowrap;
   }
 
-  /* Spacer to align under commas */
   .label-spacer {
-    /* matches .comma width: 1px margin each side + roughly the character width */
-    width: 18px;
     flex-shrink: 0;
   }
 
   .comma {
     font-family: 'Bebas Neue', cursive;
-    font-size: 2rem;
+    font-size: var(--comma-f);
     color: #111;
-    margin: 0 1px;
-    padding-top: 14px;
+    margin: 0 calc(var(--s) * 0.02);
+    padding-top: var(--comma-pt);
     line-height: 1;
   }
 
-  /* ── Card shell ── */
+  /* ── Card ── */
   .card {
-    width: 44px;
-    height: 60px;
+    width: var(--s);
+    height: var(--h);
     position: relative;
-    perspective: 400px;
+    perspective: calc(var(--s) * 9);
+    flex-shrink: 0;
   }
 
   .face {
     position: absolute;
     inset: 0;
-    border-radius: 5px;
+    border-radius: var(--radius);
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
@@ -120,7 +133,7 @@
 
   .half span {
     font-family: 'Bebas Neue', cursive;
-    font-size: 2.8rem;
+    font-size: var(--f);
     color: #fff;
     line-height: 1;
     display: block;
@@ -129,13 +142,14 @@
   }
   .half.bot span { transform: translateY(-50%); }
 
+  /* ── Flap ── */
   .flap {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 50%;
     transform-origin: bottom center;
     overflow: hidden;
-    border-radius: 5px 5px 0 0;
+    border-radius: var(--radius) var(--radius) 0 0;
     background: #1c1c1c;
     display: flex;
     align-items: flex-end;
@@ -147,7 +161,7 @@
 
   .flap span {
     font-family: 'Bebas Neue', cursive;
-    font-size: 2.8rem;
+    font-size: var(--f);
     color: #fff;
     line-height: 1;
     display: block;
@@ -168,10 +182,10 @@
   /* ── Citation ── */
   .citation {
     position: fixed;
-    bottom: 1.5rem;
+    bottom: 1rem;
     left: 0; width: 100%;
     text-align: center;
-    font-size: 0.75rem;
+    font-size: clamp(0.55rem, 1.4vw, 0.75rem);
     font-weight: 400;
     color: #555;
     padding: 0 1rem;
@@ -190,7 +204,7 @@
   <div class="labels" id="labels"></div>
 </div>
 
-<p id="nudge" style="font-size:0.7rem;color:#999;letter-spacing:0.1em;text-transform:uppercase;transition:opacity 0.5s;">
+<p id="nudge" style="font-size:clamp(0.55rem,1.4vw,0.7rem);color:#999;letter-spacing:0.1em;text-transform:uppercase;transition:opacity 0.6s;">
   ▶ Enable sound
 </p>
 
@@ -204,14 +218,9 @@
 <script>
   const HOURS_PER_YEAR = 15_000_000_000;
   const TOTAL_DIGITS   = 11;
-  const INTERVAL_MS    = 5_000;   // 5 seconds
+  const INTERVAL_MS    = 5_000;
   const CASCADE_MS     = 80;
 
-  // Groups: 2 digits, 3 digits, 3 digits, 3 digits
-  // 11 digits total = 00,000,000,000
-  // Positions:       [0-1] [2-4] [5-7] [8-10]
-  // Labels:          "tens of billions" | "billions" | "millions" | "thousands" ... 
-  // Simpler: label each GROUP by its leading denomination
   const GROUPS = [
     { count: 2, label: 'billion' },
     { count: 3, label: 'million' },
@@ -234,7 +243,6 @@
   const curVals  = Array(TOTAL_DIGITS).fill(null);
 
   GROUPS.forEach((group, gi) => {
-    // -- Card group --
     for (let d = 0; d < group.count; d++) {
       const idx  = cards.length;
       const card = document.createElement('div');
@@ -249,29 +257,51 @@
       cards.push(card);
     }
 
-    // -- Label beneath this group --
+    // Label group — width set dynamically to match cards above
     const labelGroup = document.createElement('div');
     labelGroup.className = 'label-group';
-    // Width = count * card width + (count-1) * gap
-    labelGroup.style.width = (group.count * 44 + (group.count - 1) * 4) + 'px';
+    labelGroup.dataset.count = group.count;
     const lspan = document.createElement('span');
     lspan.textContent = group.label;
     labelGroup.appendChild(lspan);
     labelsEl.appendChild(labelGroup);
 
-    // -- Comma separator (not after last group) --
     if (gi < GROUPS.length - 1) {
       const sep = document.createElement('div');
       sep.className = 'comma';
       sep.textContent = ',';
       clockEl.appendChild(sep);
 
-      // Matching spacer in label row
       const spacer = document.createElement('div');
       spacer.className = 'label-spacer';
       labelsEl.appendChild(spacer);
     }
   });
+
+  // Size labels to match card widths (called on load + every resize)
+  function sizeLabels() {
+    if (!cards.length) return;
+    const s   = cards[0].getBoundingClientRect().width;
+    const gap = s * 0.09;
+
+    document.querySelectorAll('.label-group').forEach(el => {
+      const count = parseInt(el.dataset.count);
+      el.style.width = (count * s + (count - 1) * gap) + 'px';
+    });
+
+    // Spacer = comma element's actual rendered width + its margins
+    const commaEl = document.querySelector('.comma');
+    if (commaEl) {
+      const cw = commaEl.getBoundingClientRect().width + s * 0.04;
+      document.querySelectorAll('.label-spacer').forEach(el => {
+        el.style.width = cw + 'px';
+      });
+    }
+  }
+
+  window.addEventListener('resize', sizeLabels);
+  // Two rAF frames to let fonts and CSS vars settle
+  requestAnimationFrame(() => requestAnimationFrame(sizeLabels));
 
   // ── Audio ──────────────────────────────────────────────────────────────
   let actx = null;
