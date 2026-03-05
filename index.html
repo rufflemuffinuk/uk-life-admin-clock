@@ -7,406 +7,263 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  /*
-   * Single source of truth: --s (card width).
-   * Everything else derives from it so the whole clock scales uniformly.
-   * clamp(20px, 7vw, 44px) means:
-   *   - at 320px viewport → ~22px cards  (11 cards fit easily)
-   *   - at 628px viewport → 44px cards   (full size, never bigger)
-   */
   :root {
-    --s:        clamp(18px, 6vw, 44px);
-    --h:        calc(var(--s) * 1.36);
-    --f:        calc(var(--s) * 1.27);
-    --gap:      calc(var(--s) * 0.09);
-    --comma-f:  calc(var(--s) * 0.9);
-    --comma-pt: calc(var(--s) * 0.32);
-    --radius:   calc(var(--s) * 0.11);
+    --s: clamp(18px, 6vw, 44px); --h: calc(var(--s)*1.36); --f: calc(var(--s)*1.27);
+    --gap: calc(var(--s)*0.09); --comma-f: calc(var(--s)*0.9); --comma-pt: calc(var(--s)*0.32);
+    --radius: calc(var(--s)*0.11);
   }
 
-  body {
-    background: #fff;
+  html { scroll-behavior: smooth; }
+  body { background: #fff; font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 0; }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: clamp(0.8rem, 2.5vw, 2rem);
-    min-height: 100vh;
-    padding: 1.5rem 4vw 4rem;
-    font-family: Arial, Helvetica, sans-serif;
+    padding: 2rem 4vw;
+    position: relative;
   }
 
-  h1 {
-    font-size: clamp(0.95rem, 3.2vw, 1.6rem);
-    font-weight: 900;
-    color: #111;
-    text-align: center;
-    letter-spacing: -0.01em;
-    line-height: 1.4;
-    max-width: 92vw;
-  }
+  h1 { font-size:clamp(0.95rem,3.2vw,1.6rem); font-weight:900; color:#111; text-align:center; letter-spacing:-0.01em; line-height:1.4; max-width:92vw; }
 
-  .clock-outer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: calc(var(--s) * 0.14);
-  }
-
-  .clock {
-    display: flex;
-    align-items: center;
-    gap: var(--gap);
-  }
-
-  .labels {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--gap);
-  }
-
-  .label-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .label-group span {
-    font-size: clamp(0.4rem, 1vw, 0.6rem);
-    font-weight: 400;
-    color: #999;
-    letter-spacing: 0.08em;
-    text-transform: lowercase;
-    white-space: nowrap;
-  }
-
-  .label-spacer {
-    flex-shrink: 0;
-  }
-
-  .comma {
-    font-family: 'Bebas Neue', cursive;
-    font-size: var(--comma-f);
-    color: #111;
-    margin: 0 calc(var(--s) * 0.02);
-    padding-top: var(--comma-pt);
-    line-height: 1;
-  }
+  .clock-outer { display:flex; flex-direction:column; align-items:center; gap:calc(var(--s)*0.14); }
+  .clock { display:flex; align-items:center; gap:var(--gap); }
+  .labels { display:flex; align-items:flex-start; gap:var(--gap); }
+  .label-group { display:flex; flex-direction:column; align-items:center; }
+  .label-group span { font-size:clamp(0.4rem,1vw,0.6rem); font-weight:400; color:#999; letter-spacing:0.08em; text-transform:lowercase; white-space:nowrap; }
+  .label-spacer { flex-shrink:0; }
+  .comma { font-family:'Bebas Neue',cursive; font-size:var(--comma-f); color:#111; margin:0 calc(var(--s)*0.02); padding-top:var(--comma-pt); line-height:1; }
 
   /* ── Card ── */
-  .card {
-    width: var(--s);
-    height: var(--h);
-    position: relative;
-    perspective: calc(var(--s) * 9);
-    flex-shrink: 0;
-  }
-
-  .face {
-    position: absolute;
-    inset: 0;
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  }
-
-  .face::after {
-    content: '';
-    position: absolute;
-    top: 50%; left: 0;
-    width: 100%; height: 1px;
-    background: rgba(0,0,0,0.55);
-    z-index: 5;
-  }
-
-  .half {
-    position: absolute;
-    left: 0;
-    width: 100%; height: 50%;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-  }
-  .half.top { top: 0;    align-items: flex-end;  background: #1c1c1c; }
-  .half.bot { bottom: 0; align-items: flex-start; background: #111;   }
-
-  .half span {
-    font-family: 'Bebas Neue', cursive;
-    font-size: var(--f);
-    color: #fff;
-    line-height: 1;
-    display: block;
-    user-select: none;
-    transform: translateY(50%);
-  }
-  .half.bot span { transform: translateY(-50%); }
+  .card { width:var(--s); height:var(--h); position:relative; perspective:calc(var(--s)*9); flex-shrink:0; }
+  .face { position:absolute; inset:0; border-radius:var(--radius); overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.3); }
+  .face::after { content:''; position:absolute; top:50%; left:0; width:100%; height:1px; background:rgba(0,0,0,0.55); z-index:5; }
+  .half { position:absolute; left:0; width:100%; height:50%; overflow:hidden; display:flex; justify-content:center; }
+  .half.top { top:0; align-items:flex-end; background:#1c1c1c; }
+  .half.bot { bottom:0; align-items:flex-start; background:#111; }
+  .half span { font-family:'Bebas Neue',cursive; font-size:var(--f); color:#fff; line-height:1; display:block; user-select:none; transform:translateY(50%); }
+  .half.bot span { transform:translateY(-50%); }
 
   /* ── Flap ── */
-  .flap {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 50%;
-    transform-origin: bottom center;
-    overflow: hidden;
-    border-radius: var(--radius) var(--radius) 0 0;
-    background: #1c1c1c;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    z-index: 10;
-    pointer-events: none;
-    visibility: hidden;
+  .flap { position:absolute; top:0; left:0; width:100%; height:50%; transform-origin:bottom center; overflow:hidden; border-radius:var(--radius) var(--radius) 0 0; background:#1c1c1c; display:flex; align-items:flex-end; justify-content:center; z-index:10; pointer-events:none; visibility:hidden; }
+  .flap span { font-family:'Bebas Neue',cursive; font-size:var(--f); color:#fff; line-height:1; display:block; user-select:none; transform:translateY(50%); }
+  .flap.go { visibility:visible; animation:flipDown 0.38s cubic-bezier(0.55,0,0.45,1) forwards; }
+  @keyframes flipDown { 0%{transform:rotateX(0deg)} 100%{transform:rotateX(-90deg)} }
+
+  /* ── Scroll arrow ── */
+  .scroll-arrow { position:absolute; bottom:2rem; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:0.3rem; cursor:pointer; text-decoration:none; }
+  .scroll-arrow span { font-size:clamp(0.45rem,1.1vw,0.58rem); color:#bbb; letter-spacing:0.12em; text-transform:uppercase; }
+  .arrow-icon { width:18px; height:18px; border-right:1.5px solid #bbb; border-bottom:1.5px solid #bbb; transform:rotate(45deg); animation:bounce 1.6s ease-in-out infinite; }
+  @keyframes bounce { 0%,100%{transform:rotate(45deg) translateY(0);opacity:1} 50%{transform:rotate(45deg) translateY(4px);opacity:0.4} }
+
+  /* ── Data wrap ── */
+  .data-wrap { width:100%; display:flex; flex-direction:column; align-items:center; padding:4rem 4vw 6rem; }
+  .data-sections { width:100%; max-width:680px; display:flex; flex-direction:column; gap:3.5rem; }
+
+  .data-section h2 { font-size:clamp(0.65rem,1.6vw,0.8rem); font-weight:900; color:#111; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:0.2rem; }
+  .data-section .section-sub { font-size:clamp(0.55rem,1.3vw,0.68rem); color:#999; margin-bottom:1.2rem; letter-spacing:0.03em; }
+
+  /* ── Category grid ── */
+  .category-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
   }
 
-  .flap span {
-    font-family: 'Bebas Neue', cursive;
-    font-size: var(--f);
-    color: #fff;
-    line-height: 1;
-    display: block;
-    user-select: none;
-    transform: translateY(50%);
+  .category-card {
+    padding: 0.7rem 0.8rem 0.7rem 0;
+    border-top: 1px solid #e8e8e8;
   }
 
-  .flap.go {
-    visibility: visible;
-    animation: flipDown 0.38s cubic-bezier(0.55, 0, 0.45, 1) forwards;
+  .category-card:nth-child(even) {
+    padding-left: 1.2rem;
+    border-left: 1px solid #e8e8e8;
   }
 
-  @keyframes flipDown {
-    0%   { transform: rotateX(0deg);   }
-    100% { transform: rotateX(-90deg); }
+  .category-name {
+    font-size: clamp(0.55rem, 1.3vw, 0.68rem);
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 0.2rem;
   }
+
+  .category-desc {
+    font-size: clamp(0.48rem, 1.1vw, 0.6rem);
+    color: #888;
+    line-height: 1.5;
+  }
+
+  /* ── Bar charts ── */
+  .bar-row { display:flex; align-items:center; gap:0.7rem; margin-bottom:0.55rem; }
+  .bar-label { font-size:clamp(0.55rem,1.3vw,0.68rem); color:#111; width:140px; flex-shrink:0; text-align:right; }
+  .bar-track { flex:1; height:10px; background:#f0f0f0; position:relative; overflow:hidden; }
+  .bar-fill { height:100%; background:#111; width:0; transition:width 1s ease; }
+  .bar-value { font-size:clamp(0.5rem,1.2vw,0.62rem); color:#555; width:52px; flex-shrink:0; white-space:nowrap; }
+
+  /* ── Emotion chart ── */
+  .emotion-row { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.55rem; }
+  .emotion-label { font-size:clamp(0.55rem,1.3vw,0.68rem); color:#111; width:130px; flex-shrink:0; text-align:right; }
+  .emotion-track { flex:1; height:10px; background:#f0f0f0; position:relative; }
+  .emotion-fill-pos { position:absolute; left:50%; height:100%; background:#111; width:0; transition:width 1s ease; }
+  .emotion-fill-neg { position:absolute; right:50%; height:100%; background:#111; width:0; transition:width 1s ease; }
+  .emotion-midline { position:absolute; left:50%; top:0; width:1px; height:100%; background:#ccc; }
+  .emotion-axis { display:flex; justify-content:space-between; margin-bottom:0.5rem; padding-left:136px; }
+  .emotion-axis span { font-size:clamp(0.45rem,1.1vw,0.58rem); color:#aaa; letter-spacing:0.06em; text-transform:uppercase; }
+
+  /* ── Demo table ── */
+  .demo-table { width:100%; border-collapse:collapse; }
+  .demo-table th { font-size:clamp(0.45rem,1.1vw,0.58rem); color:#aaa; text-transform:uppercase; letter-spacing:0.1em; text-align:left; padding:0 0 0.5rem 0; border-bottom:1px solid #e0e0e0; font-weight:400; }
+  .demo-table th:not(:first-child) { text-align:center; }
+  .demo-table td { font-size:clamp(0.55rem,1.3vw,0.68rem); color:#111; padding:0.5rem 0; border-bottom:1px solid #f2f2f2; vertical-align:middle; }
+  .demo-table td:not(:first-child) { text-align:center; }
+  .pill { display:inline-block; padding:0.15em 0.5em; border-radius:2px; font-size:clamp(0.48rem,1.1vw,0.6rem); font-weight:700; letter-spacing:0.04em; }
+  .pill-more { background:#111; color:#fff; }
+  .pill-less { background:#f0f0f0; color:#555; }
+  .pill-avoid { background:#111; color:#fff; }
+  .pill-focus { border:1px solid #111; color:#111; background:#fff; }
 
   /* ── Citation ── */
-  .citation {
-    position: fixed;
-    bottom: 1rem;
-    left: 0; width: 100%;
-    text-align: center;
-    font-size: clamp(0.55rem, 1.4vw, 0.75rem);
-    font-weight: 400;
-    color: #555;
-    padding: 0 1rem;
-    line-height: 1.6;
+  .citation { width:100%; text-align:center; font-size:clamp(0.55rem,1.4vw,0.75rem); color:#aaa; padding:2rem 1rem 0; line-height:1.6; max-width:680px; margin:0 auto; }
+  .citation a { color:#aaa; text-decoration:underline; }
+  .citation a:hover { color:#111; }
+
+  #nudge { font-size:clamp(0.55rem,1.4vw,0.7rem); color:#bbb; letter-spacing:0.1em; text-transform:uppercase; transition:opacity 0.6s; }
+
+  @media (max-width:480px) {
+    .bar-label,.emotion-label { width:90px; }
+    .emotion-axis { padding-left:96px; }
+    .bar-value { width:40px; }
+    .category-grid { grid-template-columns: 1fr; }
+    .category-card:nth-child(even) { padding-left:0; border-left:none; }
   }
-  .citation a { color: #555; text-decoration: underline; }
-  .citation a:hover { color: #111; }
 </style>
 </head>
 <body>
 
-<h1 id="title"></h1>
+<!-- ── Hero ── -->
+<section class="hero" id="hero">
+  <h1 id="title"></h1>
+  <div class="clock-outer">
+    <div class="clock" id="clock"></div>
+    <div class="labels" id="labels"></div>
+  </div>
+  <p id="nudge">▶ Enable sound</p>
+  <a class="scroll-arrow" href="#data">
+    <span>The data</span>
+    <div class="arrow-icon"></div>
+  </a>
+</section>
 
-<div class="clock-outer">
-  <div class="clock" id="clock"></div>
-  <div class="labels" id="labels"></div>
+<!-- ── Data ── -->
+<div class="data-wrap" id="data">
+  <div class="data-sections">
+
+    <!-- What counts as life admin -->
+    <div class="data-section" id="sec-categories">
+      <h2>What counts as life admin?</h2>
+      <p class="section-sub">The research measured administrative tasks across ten domains of everyday life</p>
+      <div class="category-grid">
+        <div class="category-card"><div class="category-name">Goods & services</div><div class="category-desc">Researching deals, contacting customer service, returns, warranties, tracking deliveries</div></div>
+        <div class="category-card"><div class="category-name">Bills</div><div class="category-desc">Managing utilities, insurance & telecoms — paying, reviewing plans, switching, contacting providers</div></div>
+        <div class="category-card"><div class="category-name">Savings</div><div class="category-desc">Reviewing accounts, researching ISAs or investments, opening accounts, making payments into savings</div></div>
+        <div class="category-card"><div class="category-name">Health</div><div class="category-desc">Applying for health benefits, finding doctors, scheduling appointments, filling out health paperwork</div></div>
+        <div class="category-card"><div class="category-name">Caring for adults</div><div class="category-desc">Managing bills, pensions or benefits for an adult relative; their healthcare paperwork; applying for Carer's Allowance</div></div>
+        <div class="category-card"><div class="category-name">Debt</div><div class="category-desc">Researching or applying for loans, managing repayments, communicating with lenders</div></div>
+        <div class="category-card"><div class="category-name">Childcare</div><div class="category-desc">Applying for child benefits, communicating with schools, scheduling appointments, filling out paperwork for children</div></div>
+        <div class="category-card"><div class="category-name">Tax & income</div><div class="category-desc">Filing payslips, declaring income, claiming tax credits, managing tax codes</div></div>
+        <div class="category-card"><div class="category-name">Retirement</div><div class="category-desc">Researching pensions, choosing or managing a pension plan, contacting providers</div></div>
+        <div class="category-card"><div class="category-name">Gov. benefits</div><div class="category-desc">Researching, applying for, and providing documentation for welfare programmes; contacting government offices</div></div>
+      </div>
+    </div>
+
+    <!-- Time by domain -->
+    <div class="data-section" id="sec-time">
+      <h2>Where does the time go?</h2>
+      <p class="section-sub">Average minutes per day spent on admin, across the UK adult population</p>
+      <div id="domain-bars"></div>
+    </div>
+
+    <!-- Emotional cost -->
+    <div class="data-section" id="sec-emotion">
+      <h2>The emotional cost of admin</h2>
+      <p class="section-sub">Net emotional score per domain — positive emotions minus negative emotions (scale 1–7)</p>
+      <div class="emotion-axis"><span>← more negative</span><span>more positive →</span></div>
+      <div id="emotion-bars"></div>
+    </div>
+
+    <!-- Who bears the burden -->
+    <div class="data-section" id="sec-demo">
+      <h2>Who bears the burden?</h2>
+      <p class="section-sub">How admin patterns differ for disadvantaged groups vs. the population average of 59 min/day</p>
+      <table class="demo-table">
+        <thead>
+          <tr><th>Group</th><th>Daily admin time</th><th>More likely to do</th><th>Less likely to do</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Poor health</td><td><span class="pill pill-more">+9 min/day</span></td><td><span class="pill pill-focus">Benefits, Health</span></td><td><span class="pill pill-avoid">Savings, Pension</span></td></tr>
+          <tr><td>Low financial wellbeing</td><td><span class="pill pill-more">+13 min/day</span></td><td><span class="pill pill-focus">Benefits, Debt, Bills</span></td><td><span class="pill pill-avoid">Savings, Pension</span></td></tr>
+          <tr><td>Low income (&lt;£20k)</td><td><span class="pill pill-less">−7 min/day</span></td><td><span class="pill pill-focus">Benefits</span></td><td><span class="pill pill-avoid">Savings, Pension, Tax</span></td></tr>
+          <tr><td>Older (65+)</td><td><span class="pill pill-less">−21 min/day</span></td><td><span class="pill pill-focus">Bills, Retirement</span></td><td><span class="pill pill-avoid">Childcare</span></td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:clamp(0.48rem,1.1vw,0.6rem);color:#aaa;margin-top:0.9rem;">Source: Tables A2 &amp; 4 — Martin, Delaney &amp; Doyle (2022)</p>
+    </div>
+
+    <p class="citation">
+      The research reports an average of 58.8 min/day, which would put the true figure closer to 19 billion hours per year but we have based it on a conservative estimate of ~45 min/day per UK adult, 15 billion hours a year.
+      <br><br>
+      Calculated from <a href="https://researchrepository.ucd.ie/server/api/core/bitstreams/d56f7eeb-b102-46da-b060-0c969420d514/content" target="_blank"><strong><em>Everyday Administrative Burdens and Inequality</em> by Lucie Martin, Liam Delaney and Orla Doyle (2022)</strong></a>
+    </p>
+
+  </div>
 </div>
 
-<p id="nudge" style="font-size:clamp(0.55rem,1.4vw,0.7rem);color:#999;letter-spacing:0.1em;text-transform:uppercase;transition:opacity 0.6s;">
-  ▶ Enable sound
-</p>
-
-<p class="citation">
-  These hours are calculated from the paper
-  <a href="https://researchrepository.ucd.ie/server/api/core/bitstreams/d56f7eeb-b102-46da-b060-0c969420d514/content" target="_blank">
-    <em>Everyday Administrative Burdens and Inequality</em> by Lucie Martin, Liam Delaney and Orla Doyle
-  </a>
-</p>
-
 <script>
-  const HOURS_PER_YEAR = 15_000_000_000;
-  const TOTAL_DIGITS   = 11;
-  const INTERVAL_MS    = 5_000;
-  const CASCADE_MS     = 80;
-
-  const GROUPS = [
-    { count: 2, label: 'billion' },
-    { count: 3, label: 'million' },
-    { count: 3, label: 'thousand' },
-    { count: 3, label: 'hundred' },
-  ];
-
-  function getHoursWasted() {
-    const now       = new Date();
-    const yearStart = new Date(now.getFullYear(), 0, 1);
-    const yearEnd   = new Date(now.getFullYear() + 1, 0, 1);
-    const rate      = HOURS_PER_YEAR / ((yearEnd - yearStart) / 1000);
-    return Math.floor((now - yearStart) / 1000 * rate);
-  }
-
-  // ── Build DOM ──────────────────────────────────────────────────────────
-  const clockEl  = document.getElementById('clock');
-  const labelsEl = document.getElementById('labels');
-  const cards    = [];
-  const curVals  = Array(TOTAL_DIGITS).fill(null);
-
-  GROUPS.forEach((group, gi) => {
-    for (let d = 0; d < group.count; d++) {
-      const idx  = cards.length;
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <div class="face">
-          <div class="half top"><span class="tv">0</span></div>
-          <div class="half bot"><span class="bv">0</span></div>
-        </div>
-        <div class="flap" id="flap${idx}"><span>0</span></div>`;
-      clockEl.appendChild(card);
-      cards.push(card);
-    }
-
-    // Label group — width set dynamically to match cards above
-    const labelGroup = document.createElement('div');
-    labelGroup.className = 'label-group';
-    labelGroup.dataset.count = group.count;
-    const lspan = document.createElement('span');
-    lspan.textContent = group.label;
-    labelGroup.appendChild(lspan);
-    labelsEl.appendChild(labelGroup);
-
-    if (gi < GROUPS.length - 1) {
-      const sep = document.createElement('div');
-      sep.className = 'comma';
-      sep.textContent = ',';
-      clockEl.appendChild(sep);
-
-      const spacer = document.createElement('div');
-      spacer.className = 'label-spacer';
-      labelsEl.appendChild(spacer);
-    }
+  const HOURS_PER_YEAR=15_000_000_000,TOTAL_DIGITS=11,INTERVAL_MS=5_000,CASCADE_MS=80;
+  const GROUPS=[{count:2,label:'billion'},{count:3,label:'million'},{count:3,label:'thousand'},{count:3,label:'hundred'}];
+  function getHoursWasted(){const n=new Date(),s=new Date(n.getFullYear(),0,1),e=new Date(n.getFullYear()+1,0,1),r=HOURS_PER_YEAR/((e-s)/1000);return Math.floor((n-s)/1000*r);}
+  const clockEl=document.getElementById('clock'),labelsEl=document.getElementById('labels'),cards=[],curVals=Array(TOTAL_DIGITS).fill(null);
+  GROUPS.forEach((group,gi)=>{
+    for(let d=0;d<group.count;d++){const idx=cards.length,card=document.createElement('div');card.className='card';card.innerHTML=`<div class="face"><div class="half top"><span class="tv">0</span></div><div class="half bot"><span class="bv">0</span></div></div><div class="flap" id="flap${idx}"><span>0</span></div>`;clockEl.appendChild(card);cards.push(card);}
+    const lg=document.createElement('div');lg.className='label-group';lg.dataset.count=group.count;const ls=document.createElement('span');ls.textContent=group.label;lg.appendChild(ls);labelsEl.appendChild(lg);
+    if(gi<GROUPS.length-1){const sep=document.createElement('div');sep.className='comma';sep.textContent=',';clockEl.appendChild(sep);const sp=document.createElement('div');sp.className='label-spacer';labelsEl.appendChild(sp);}
   });
+  function sizeLabels(){if(!cards.length)return;const s=cards[0].getBoundingClientRect().width,gap=s*0.09;document.querySelectorAll('.label-group').forEach(el=>{const c=parseInt(el.dataset.count);el.style.width=(c*s+(c-1)*gap)+'px';});const ce=document.querySelector('.comma');if(ce){const cw=ce.getBoundingClientRect().width+s*0.04;document.querySelectorAll('.label-spacer').forEach(el=>{el.style.width=cw+'px';});}}
+  window.addEventListener('resize',sizeLabels);requestAnimationFrame(()=>requestAnimationFrame(sizeLabels));
+  let actx=null;
+  function ensureAudio(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();}
+  const nudge=document.getElementById('nudge');
+  function unlockAudio(){ensureAudio();if(nudge)nudge.style.opacity='0';}
+  document.addEventListener('click',unlockAudio);document.addEventListener('touchstart',unlockAudio);
+  function playFlipSound(t){if(!actx||actx.state==='suspended')return;const n=Math.floor(actx.sampleRate*0.06),b=actx.createBuffer(1,n,actx.sampleRate),bd=b.getChannelData(0);for(let i=0;i<n;i++)bd[i]=(Math.random()*2-1)*Math.exp(-i/(n*0.1));const src=actx.createBufferSource();src.buffer=b;const flt=actx.createBiquadFilter();flt.type='bandpass';flt.frequency.value=1800;flt.Q.value=1;const gn=actx.createGain();gn.gain.setValueAtTime(0.28,t);gn.gain.exponentialRampToValueAtTime(0.001,t+0.06);src.connect(flt);flt.connect(gn);gn.connect(actx.destination);src.start(t);}
+  function flipCard(idx,oldChar,newChar,delay){const card=cards[idx],tv=card.querySelector('.tv'),bv=card.querySelector('.bv'),flap=document.getElementById('flap'+idx),fs=flap.querySelector('span');setTimeout(()=>{fs.textContent=oldChar;tv.textContent=oldChar;bv.textContent=newChar;flap.classList.remove('go');void flap.offsetWidth;flap.classList.add('go');ensureAudio();if(actx)playFlipSound(actx.currentTime);flap.addEventListener('animationend',()=>{tv.textContent=newChar;flap.classList.remove('go');},{once:true});},delay);}
+  function render(animate){const h=getHoursWasted(),str=h.toString().padStart(TOTAL_DIGITS,'0');if(!animate){for(let i=0;i<TOTAL_DIGITS;i++){curVals[i]=str[i];cards[i].querySelector('.tv').textContent=str[i];cards[i].querySelector('.bv').textContent=str[i];document.querySelector(`#flap${i} span`).textContent=str[i];}return;}let order=0;for(let i=0;i<TOTAL_DIGITS;i++){if(str[i]!==curVals[i]){const old=curVals[i];curVals[i]=str[i];flipCard(i,old,str[i],order*CASCADE_MS);order++;}}}
+  document.getElementById('title').textContent=`Hours spent on life admin by the UK Public since the year ${new Date().getFullYear()}`;
+  render(false);setInterval(()=>render(true),INTERVAL_MS);
 
-  // Size labels to match card widths (called on load + every resize)
-  function sizeLabels() {
-    if (!cards.length) return;
-    const s   = cards[0].getBoundingClientRect().width;
-    const gap = s * 0.09;
+  const domainData=[{label:'Goods & services',minutes:15.9},{label:'Bills',minutes:10.8},{label:'Savings',minutes:9.3},{label:'Health',minutes:5.1},{label:'Caring for adults',minutes:4.2},{label:'Debt',minutes:3.8},{label:'Childcare',minutes:3.1},{label:'Tax & income',minutes:2.2},{label:'Retirement',minutes:2.2},{label:'Gov. benefits',minutes:2.1}];
+  const maxMins=Math.max(...domainData.map(d=>d.minutes)),domainContainer=document.getElementById('domain-bars');
+  domainData.forEach(d=>{const row=document.createElement('div');row.className='bar-row';row.innerHTML=`<div class="bar-label">${d.label}</div><div class="bar-track"><div class="bar-fill" data-pct="${(d.minutes/maxMins*100).toFixed(1)}"></div></div><div class="bar-value">${d.minutes} min</div>`;domainContainer.appendChild(row);});
 
-    document.querySelectorAll('.label-group').forEach(el => {
-      const count = parseInt(el.dataset.count);
-      el.style.width = (count * s + (count - 1) * gap) + 'px';
-    });
+  const emotionData=[{label:'Caring for children',pos:4.02,neg:2.25},{label:'Goods & services',pos:3.99,neg:2.12},{label:'Savings',pos:3.91,neg:1.95},{label:'Caring for adults',pos:3.65,neg:2.58},{label:'Retirement',pos:3.64,neg:2.10},{label:'Bills',pos:3.36,neg:2.55},{label:'Health',pos:3.23,neg:2.73},{label:'Tax & income',pos:3.07,neg:2.64},{label:'Debt',pos:3.04,neg:2.93},{label:'Gov. benefits',pos:2.63,neg:3.39}].map(d=>({...d,net:+(d.pos-d.neg).toFixed(2)})).sort((a,b)=>b.net-a.net);
+  const maxNet=Math.max(...emotionData.map(d=>Math.abs(d.net))),emotionContainer=document.getElementById('emotion-bars');
+  emotionData.forEach(d=>{const row=document.createElement('div');row.className='emotion-row';const pct=(Math.abs(d.net)/maxNet*48).toFixed(1),sign=d.net>=0?'+':'';row.innerHTML=`<div class="emotion-label">${d.label}</div><div class="emotion-track"><div class="emotion-midline"></div>${d.net>=0?`<div class="emotion-fill-pos" data-pct="${pct}"></div>`:`<div class="emotion-fill-neg" data-pct="${pct}"></div>`}</div><div class="bar-value">${sign}${d.net}</div>`;emotionContainer.appendChild(row);});
 
-    // Spacer = comma element's actual rendered width + its margins
-    const commaEl = document.querySelector('.comma');
-    if (commaEl) {
-      const cw = commaEl.getBoundingClientRect().width + s * 0.04;
-      document.querySelectorAll('.label-spacer').forEach(el => {
-        el.style.width = cw + 'px';
-      });
-    }
-  }
+  const hero=document.getElementById('hero');
+  const arrow=document.querySelector('.scroll-arrow');
+  window.addEventListener('scroll',()=>{
+    const heroBottom=hero.getBoundingClientRect().bottom;
+    arrow.style.opacity=heroBottom<80?'0':'1';
+    arrow.style.pointerEvents=heroBottom<80?'none':'auto';
+  },{passive:true});
+  Object.assign(arrow.style,{transition:'opacity 0.4s'});
 
-  window.addEventListener('resize', sizeLabels);
-  // Two rAF frames to let fonts and CSS vars settle
-  requestAnimationFrame(() => requestAnimationFrame(sizeLabels));
-
-  // ── Audio ──────────────────────────────────────────────────────────────
-  let actx = null;
-
-  function ensureAudio() {
-    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-    if (actx.state === 'suspended') actx.resume();
-  }
-
-  const nudge = document.getElementById('nudge');
-  function unlockAudio() {
-    ensureAudio();
-    if (nudge) nudge.style.opacity = '0';
-  }
-  document.addEventListener('click',      unlockAudio);
-  document.addEventListener('touchstart', unlockAudio);
-
-  function playFlipSound(whenSec) {
-    if (!actx || actx.state === 'suspended') return;
-    const t = whenSec;
-
-    const n  = Math.floor(actx.sampleRate * 0.06);
-    const b  = actx.createBuffer(1, n, actx.sampleRate);
-    const bd = b.getChannelData(0);
-    for (let i = 0; i < n; i++) bd[i] = (Math.random()*2-1) * Math.exp(-i/(n*0.1));
-    const src = actx.createBufferSource(); src.buffer = b;
-    const flt = actx.createBiquadFilter(); flt.type = 'bandpass'; flt.frequency.value = 1800; flt.Q.value = 1;
-    const gn  = actx.createGain();
-    gn.gain.setValueAtTime(0.28, t);
-    gn.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
-    src.connect(flt); flt.connect(gn); gn.connect(actx.destination);
-    src.start(t);
-
-    const n2   = Math.floor(actx.sampleRate * 0.04);
-    const b2   = actx.createBuffer(1, n2, actx.sampleRate);
-    const b2d  = b2.getChannelData(0);
-    for (let i = 0; i < n2; i++) b2d[i] = (Math.random()*2-1) * Math.exp(-i/(n2*0.3));
-    const src2 = actx.createBufferSource(); src2.buffer = b2;
-    const flt2 = actx.createBiquadFilter(); flt2.type = 'lowpass'; flt2.frequency.value = 200;
-    const gn2  = actx.createGain();
-    gn2.gain.setValueAtTime(0.4,  t + 0.01);
-    gn2.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
-    src2.connect(flt2); flt2.connect(gn2); gn2.connect(actx.destination);
-    src2.start(t + 0.01);
-  }
-
-  // ── Flip a single card ─────────────────────────────────────────────────
-  function flipCard(idx, oldChar, newChar, startDelayMs) {
-    const card     = cards[idx];
-    const tv       = card.querySelector('.tv');
-    const bv       = card.querySelector('.bv');
-    const flap     = document.getElementById('flap' + idx);
-    const flapSpan = flap.querySelector('span');
-
-    setTimeout(() => {
-      flapSpan.textContent = oldChar;
-      tv.textContent       = oldChar;
-      bv.textContent       = newChar;
-
-      flap.classList.remove('go');
-      void flap.offsetWidth;
-      flap.classList.add('go');
-
-      ensureAudio();
-      if (actx) playFlipSound(actx.currentTime);
-
-      flap.addEventListener('animationend', () => {
-        tv.textContent = newChar;
-        flap.classList.remove('go');
-      }, { once: true });
-
-    }, startDelayMs);
-  }
-
-  // ── Render ─────────────────────────────────────────────────────────────
-  function render(animate) {
-    const h   = getHoursWasted();
-    const str = h.toString().padStart(TOTAL_DIGITS, '0');
-
-    if (!animate) {
-      for (let i = 0; i < TOTAL_DIGITS; i++) {
-        curVals[i] = str[i];
-        cards[i].querySelector('.tv').textContent = str[i];
-        cards[i].querySelector('.bv').textContent = str[i];
-        document.querySelector(`#flap${i} span`).textContent = str[i];
-      }
-      return;
-    }
-
-    let order = 0;
-    for (let i = 0; i < TOTAL_DIGITS; i++) {
-      if (str[i] !== curVals[i]) {
-        const old = curVals[i];
-        curVals[i] = str[i];
-        flipCard(i, old, str[i], order * CASCADE_MS);
-        order++;
-      }
-    }
-  }
-
-  document.getElementById('title').textContent =
-    `Hours spent on life admin by the UK Public since the year ${new Date().getFullYear()}`;
-
-  render(false);
-  setInterval(() => render(true), INTERVAL_MS);
+  const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(!entry.isIntersecting)return;entry.target.querySelectorAll('.bar-fill,.emotion-fill-pos,.emotion-fill-neg').forEach(el=>{el.style.width=el.dataset.pct+'%';});observer.unobserve(entry.target);});},{threshold:0.15});
+  document.querySelectorAll('.data-section').forEach(sec=>observer.observe(sec));
 </script>
 </body>
 </html>
